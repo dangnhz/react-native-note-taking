@@ -14,9 +14,15 @@ export default function SettingsScreen() {
   const handleExport = async () => {
     try {
       await exportNotes();
-      Alert.alert('Success', 'Notes exported successfully');
+      Alert.alert(
+        'Success',
+        'Notes exported successfully. Check your downloads or shared location.'
+      );
     } catch (error) {
-      Alert.alert('Error', 'Failed to export notes');
+      Alert.alert(
+        'Export Failed',
+        error instanceof Error ? error.message : 'Failed to export notes'
+      );
     }
   };
 
@@ -24,15 +30,23 @@ export default function SettingsScreen() {
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: 'application/json',
+        copyToCacheDirectory: true,
       });
 
       if (!result.canceled && result.assets?.[0]?.uri) {
         const notes = await importNotes(result.assets[0].uri);
-        updateNotes(notes);
-        Alert.alert('Success', 'Notes imported successfully');
+        if (notes && Array.isArray(notes)) {
+          updateNotes(notes);
+          Alert.alert('Success', `${notes.length} notes imported successfully`);
+        } else {
+          throw new Error('Invalid backup file format');
+        }
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to import notes');
+      Alert.alert(
+        'Import Failed',
+        error instanceof Error ? error.message : 'Failed to import notes'
+      );
     }
   };
 
@@ -65,14 +79,13 @@ export default function SettingsScreen() {
         <View style={styles.sectionHeader}>
           <Ionicons name="cloud-upload-outline" size={24} color={colors.primary} />
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Backup
+            Backup & Restore
           </Text>
         </View>
         <View style={styles.buttonContainer}>
           <Button
             title="Export Notes"
             onPress={handleExport}
-            variant="primary"
             style={styles.button}
           />
           <Button

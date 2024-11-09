@@ -35,15 +35,6 @@ export default function Layout() {
           headerBackTitleVisible: false,
         }}
       />
-      <Stack.Screen
-        name="note/new"
-        options={{ 
-          title: 'New Note',
-          animation: 'slide_from_right',
-          headerBackTitle: '',
-          headerBackTitleVisible: false,
-        }}
-      />
     </Stack>
   );
 } 

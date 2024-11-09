@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     padding: PADDING,
     paddingBottom: 8,
+    marginBottom: 8,
   },
   searchBar: {
     flexDirection: 'row',
@@ -378,6 +379,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  
   },
   sortButtonText: {
     fontSize: 14,
@@ -386,6 +388,7 @@ const styles = StyleSheet.create({
   listContent: {
     padding: PADDING,
     gap: 12,
+    paddingBottom: 100,
   },
   cardContainer: {
     width: '100%',

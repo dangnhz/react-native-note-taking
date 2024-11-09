@@ -5,17 +5,16 @@ import { Ionicons } from '@expo/vector-icons';
 import useNoteStore from '../../hooks/useNoteStore';
 import NoteEditor from '../../components/notes/NoteEditor';
 import { NoteStore } from '../../types';
-import useTheme from '@/hooks/useTheme';
+import useTheme from '../../hooks/useTheme';
 
 export default function NewNoteScreen() {
   const router = useRouter();
   const addNote = useNoteStore((state: NoteStore) => state.addNote);
+  const { colors } = useTheme();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-
-  const {colors} = useTheme();
 
   const handleSave = () => {
     if (!title.trim()) return;
@@ -26,7 +25,9 @@ export default function NewNoteScreen() {
       tags,
       isFavorite: false,
     });
-    router.back();
+    
+    // Navigate back to the notes tab
+    router.replace('/(tabs)');
   };
 
   return (

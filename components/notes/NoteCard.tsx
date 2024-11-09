@@ -97,14 +97,6 @@ export default function NoteCard({ note }: NoteCardProps) {
                   </View>
                 )}
               </View>
-
-              {/* Word Count */}
-              <View style={[styles.wordCount, { backgroundColor: colors.surfaceHover }]}>
-                <Ionicons name="text-outline" size={14} color={colors.textSecondary} />
-                <Text style={[styles.wordCountText, { color: colors.textSecondary }]}>
-                  {note.content.split(/\s+/).length}
-                </Text>
-              </View>
             </View>
           </View>
         </TouchableOpacity>

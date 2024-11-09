@@ -32,7 +32,7 @@ export default function Button({
             variant === 'secondary' ? colors.secondary :
             'transparent',
           borderColor: variant === 'outline' ? colors.primary : 'transparent',
-          borderWidth: variant === 'outline' ? 1.5 : 0,
+          borderWidth: variant === 'outline' ? 2 : 0,
         },
         style
       ]}
@@ -53,7 +53,7 @@ export default function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 12,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -61,6 +61,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    overflow: 'hidden',
+  },
+  outline: {
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
   },
   small: {
     paddingHorizontal: 16,
