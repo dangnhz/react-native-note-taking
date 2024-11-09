@@ -32,7 +32,7 @@ export default function Button({
             variant === 'secondary' ? colors.secondary :
             'transparent',
           borderColor: variant === 'outline' ? colors.primary : 'transparent',
-          borderWidth: variant === 'outline' ? 2 : 0,
+          borderWidth: variant === 'outline' ? 1 : 0,
         },
         style
       ]}
