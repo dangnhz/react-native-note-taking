@@ -1,37 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import useTheme from '../hooks/useTheme';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+export default function Layout() {
+  const { colors, isDark } = useTheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: colors.surface,
+        },
+        headerTintColor: colors.text,
+        headerShadowVisible: false,
+        headerTitleStyle: {
+          color: colors.text,
+        },
+        contentStyle: {
+          backgroundColor: colors.background,
+        },
+        headerBackTitle: '',
+        headerBackTitleVisible: false,
+      }}
+    >
+      <Stack.Screen
+        name="(tabs)"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="note/[id]"
+        options={{ 
+          title: 'Edit Note',
+          animation: 'slide_from_right',
+          headerBackTitle: '',
+          headerBackTitleVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="note/new"
+        options={{ 
+          title: 'New Note',
+          animation: 'slide_from_right',
+          headerBackTitle: '',
+          headerBackTitleVisible: false,
+        }}
+      />
+    </Stack>
   );
-}
+} 
