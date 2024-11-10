@@ -15,10 +15,33 @@ export default function NoteCard({ note }: NoteCardProps) {
   const { colors, isDark } = useTheme();
   const toggleFavorite = useNoteStore((state: NoteStore) => state.toggleFavorite);
 
+  // Function to strip HTML tags and decode HTML entities
+  const stripHtml = (html: string) => {
+    if (!html) return '';
+    
+    // First, remove HTML tags
+    const withoutTags = html.replace(/<[^>]*>/g, ' ');
+    
+    // Then, decode HTML entities
+    const withoutEntities = withoutTags
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    // Finally, normalize whitespace
+    return withoutEntities
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const previewLength = note.title.length > 30 ? 80 : 120;
-  const previewText = note.content.length > previewLength 
-    ? `${note.content.slice(0, previewLength)}...` 
-    : note.content;
+  const plainTextContent = stripHtml(note.content);
+  const previewText = plainTextContent.length > previewLength 
+    ? `${plainTextContent.slice(0, previewLength)}...` 
+    : plainTextContent;
 
   return (
     <View style={[

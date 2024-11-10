@@ -7,6 +7,28 @@ import { Ionicons } from '@expo/vector-icons';
 
 const PADDING = 16;
 
+// Helper function to strip HTML tags and decode entities
+const stripHtml = (html: string) => {
+  if (!html) return '';
+  
+  // Remove HTML tags
+  const withoutTags = html.replace(/<[^>]*>/g, ' ');
+  
+  // Decode HTML entities
+  const withoutEntities = withoutTags
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+  
+  // Normalize whitespace
+  return withoutEntities
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export default function CategoriesScreen() {
   const { colors, isDark } = useTheme();
   const router = useRouter();
@@ -38,6 +60,37 @@ export default function CategoriesScreen() {
       if (b.count !== a.count) return b.count - a.count;
       return b.lastUpdated.getTime() - a.lastUpdated.getTime();
     });
+
+  const renderNotePreview = (note: Note) => {
+    const plainContent = stripHtml(note.content);
+    const previewText = plainContent.length > 60 
+      ? `${plainContent.slice(0, 60)}...` 
+      : plainContent;
+
+    return (
+      <TouchableOpacity
+        key={note.id}
+        style={[
+          styles.notePreview,
+          { backgroundColor: colors.surfaceHover }
+        ]}
+        onPress={() => router.push(`/note/${note.id}`)}
+      >
+        <Text 
+          numberOfLines={1}
+          style={[styles.noteTitle, { color: colors.text }]}
+        >
+          {note.title}
+        </Text>
+        <Text 
+          numberOfLines={2}
+          style={[styles.notePreviewText, { color: colors.textSecondary }]}
+        >
+          {previewText}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -81,29 +134,7 @@ export default function CategoriesScreen() {
                 {stats.notes
                   .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
                   .slice(0, 3)
-                  .map((note) => (
-                    <TouchableOpacity
-                      key={note.id}
-                      style={[
-                        styles.notePreview,
-                        { backgroundColor: colors.surfaceHover }
-                      ]}
-                      onPress={() => router.push(`/note/${note.id}`)}
-                    >
-                      <Text 
-                        numberOfLines={2}
-                        style={[styles.noteTitle, { color: colors.text }]}
-                      >
-                        {note.title}
-                      </Text>
-                      <Text 
-                        numberOfLines={1}
-                        style={[styles.notePreviewText, { color: colors.textSecondary }]}
-                      >
-                        {note.content}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                  .map(renderNotePreview)}
               </View>
 
               {/* Show More Button */}

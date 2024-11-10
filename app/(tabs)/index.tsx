@@ -9,10 +9,15 @@ export default function NotesScreen() {
 	const { colors } = useTheme();
 	const notes = useNoteStore((state: NoteStore) => state.notes);
 
+	// Sort notes by updatedAt date, newest first
+	const sortedNotes = [...notes].sort((a, b) => 
+		new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+	);
+
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background }]}>
 			<FlatList
-				data={notes}
+				data={sortedNotes}
 				renderItem={({ item }) => <NoteCard note={item} />}
 				keyExtractor={(item: Note) => item.id}
 				contentContainerStyle={styles.listContent}
@@ -39,6 +44,7 @@ const styles = StyleSheet.create({
 	listContent: {
 		padding: 16,
 		gap: 16,
+		paddingBottom: 32,
 	},
 	emptyState: {
 		flex: 1,
