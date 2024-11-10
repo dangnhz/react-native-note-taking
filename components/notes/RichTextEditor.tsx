@@ -16,8 +16,8 @@ const RichTextEditor = forwardRef<BaseRichEditor, CustomRichEditorProps>((props,
       useContainer={Platform.OS === 'ios'}
       initialHeight={400}
       style={[styles.editor, props.style]}
-      textZoom={100}
-      androidLayerType="software"
+      placeholder="Start writing..."
+      initialContentHTML=""
     />
   );
 });
