@@ -1,10 +1,10 @@
-import { View, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import useNoteStore from '../../hooks/useNoteStore';
 import NoteEditor from '../../components/notes/NoteEditor';
-import { Note, NoteStore } from '../../types';
+import { Note } from '../../types';
 import useTheme from '../../hooks/useTheme';
 
 export default function NoteScreen() {
@@ -14,9 +14,8 @@ export default function NoteScreen() {
   
   // Ensure id is a string
   const noteId = Array.isArray(id) ? id[0] : id;
-
   const [note, updateNote, deleteNote] = useNoteStore((state) => [
-    state.notes.find((n) => n.id === noteId),
+    state.notes.find((n: Note) => n.id === noteId),
     state.updateNote,
     state.deleteNote,
   ]);
@@ -80,9 +79,8 @@ export default function NoteScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={[
+      <View 
+        style={[
           styles.content,
           { backgroundColor: isDark ? colors.surface : '#F8F9FA' }
         ]}
@@ -95,7 +93,7 @@ export default function NoteScreen() {
           onContentChange={handleContentChange}
           onTagsChange={handleTagsChange}
         />
-      </ScrollView>
+      </View>
 
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
@@ -120,15 +118,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-  },
   content: {
     flex: 1,
     borderRadius: 24,
     margin: 16,
     padding: 20,
-    minHeight: '100%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
