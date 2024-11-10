@@ -1,17 +1,40 @@
 import React, { useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { StyleSheet, Platform } from 'react-native';
-import { RichEditor as BaseRichEditor, RichEditorProps } from 'react-native-pell-rich-editor';
+import { RichEditor as BaseRichEditor, RichEditorProps, actions } from 'react-native-pell-rich-editor';
 
 interface CustomRichEditorProps extends RichEditorProps {
   onChange?: (text: string) => void;
 }
 
-const RichTextEditor = forwardRef<BaseRichEditor, CustomRichEditorProps>((props, ref) => {
+export interface RichEditorHandle {
+  insertHTML: (html: string) => void;
+  setContentHTML: (html: string) => void;
+  getContentHtml: () => Promise<string>;
+  registerToolbar: (callback: (items: any) => void) => void;
+  sendAction: (type: string, action: string, data?: any) => void;
+}
+
+const RichTextEditor = forwardRef<RichEditorHandle, CustomRichEditorProps>((props, ref) => {
   const editorRef = useRef<BaseRichEditor>(null);
 
-  useImperativeHandle(ref, () => editorRef.current!);
+  useImperativeHandle(ref, () => ({
+    insertHTML: (html: string) => {
+      editorRef.current?.insertHTML(html);
+    },
+    setContentHTML: (html: string) => {
+      editorRef.current?.setContentHTML(html);
+    },
+    getContentHtml: async () => {
+      return editorRef.current?.getContentHtml() || '';
+    },
+    registerToolbar: (callback) => {
+      editorRef.current?.registerToolbar(callback);
+    },
+    sendAction: (type, action, data) => {
+      editorRef.current?.sendAction(type, action, data);
+    }
+  }));
 
-  // Reset content when initialContentHTML changes to empty
   useEffect(() => {
     if (props.initialContentHTML === '') {
       editorRef.current?.setContentHTML('');
@@ -24,6 +47,14 @@ const RichTextEditor = forwardRef<BaseRichEditor, CustomRichEditorProps>((props,
     }
   };
 
+  const customCSS = `
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      margin: 10px 0;
+    }
+  `;
+
   return (
     <BaseRichEditor
       {...props}
@@ -34,6 +65,13 @@ const RichTextEditor = forwardRef<BaseRichEditor, CustomRichEditorProps>((props,
       placeholder="Start writing..."
       onChange={handleChange}
       initialContentHTML={props.initialContentHTML || ""}
+      editorStyle={{
+        ...props.editorStyle,
+        cssText: `
+          ${props.editorStyle?.cssText || ''}
+          ${customCSS}
+        `
+      }}
     />
   );
 });

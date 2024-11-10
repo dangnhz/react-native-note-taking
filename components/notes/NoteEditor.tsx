@@ -1,11 +1,14 @@
-import { SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, StyleSheet, Alert } from 'react-native';
 import { RichToolbar, actions } from 'react-native-pell-rich-editor';
 import { Ionicons } from '@expo/vector-icons';
 import TagInput from './TagInput';
 import useTheme from '../../hooks/useTheme';
 import { TextInput } from 'react-native';
 import { useRef, useCallback } from 'react';
-import RichTextEditor from './RichTextEditor';
+import RichTextEditor, { RichEditorHandle } from './RichTextEditor';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 interface NoteEditorProps {
 	title: string;
@@ -16,9 +19,14 @@ interface NoteEditorProps {
 	onTagsChange: (tags: string[]) => void;
 }
 
+type ImageDimensions = {
+	width: number;
+	height: number;
+};
+
 export default function NoteEditor({ title, content, tags, onTitleChange, onContentChange, onTagsChange }: NoteEditorProps) {
 	const { colors } = useTheme();
-	const richTextRef = useRef<any>(null);
+	const richTextRef = useRef<RichEditorHandle>(null);
 	const scrollRef = useRef<ScrollView>(null);
 
 	const handleContentChange = (html: string) => {
@@ -36,8 +44,47 @@ export default function NoteEditor({ title, content, tags, onTitleChange, onCont
 		});
 	}, []);
 
-	const handlePressAddImage = () => {
-		richTextRef.current?.insertImage('https://example.com/image.jpg');
+	const handlePressAddImage = async () => {
+		try {
+			const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+			
+			if (!permissionResult.granted) {
+				Alert.alert('Permission Required', 'Please allow access to your photo library to add images.');
+				return;
+			}
+
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ImagePicker.MediaTypeOptions.Images,
+				allowsEditing: true,
+				quality: 1,
+				base64: true,
+			});
+
+			if (!result.canceled && result.assets[0]) {
+				const selectedImage = result.assets[0];
+				
+				// Compress the image
+				const compressedImage = await manipulateAsync(
+					selectedImage.uri,
+					[{ resize: { width: 1024 } }],
+					{
+						compress: 0.8,
+						format: SaveFormat.JPEG,
+						base64: true
+					}
+				);
+
+				// Get base64 string
+				const base64Image = compressedImage.base64;
+				
+				// Insert the base64 image
+				const imageHtml = `<img src="data:image/jpeg;base64,${base64Image}" style="max-width: 100%; height: auto;" />`;
+				richTextRef.current?.insertHTML(imageHtml);
+			}
+		} catch (error) {
+			console.error('Error picking image:', error);
+			Alert.alert('Error', 'Failed to add image. Please try again.');
+		}
 	};
 
 	return (
@@ -48,7 +95,18 @@ export default function NoteEditor({ title, content, tags, onTitleChange, onCont
 				editor={richTextRef}
 				selectedIconTint={colors.primary}
 				iconTint={colors.text}
-				actions={[actions.setBold, actions.setItalic, actions.setUnderline, actions.setStrikethrough, actions.insertBulletsList, actions.insertOrderedList, actions.checkboxList, actions.insertImage, actions.undo, actions.redo]}
+				actions={[
+					actions.setBold,
+					actions.setItalic,
+					actions.setUnderline,
+					actions.setStrikethrough,
+					actions.insertBulletsList,
+					actions.insertOrderedList,
+					actions.checkboxList,
+					actions.insertImage,
+					actions.undo,
+					actions.redo
+				]}
 				iconMap={{
 					[actions.undo]: () => <Ionicons name="arrow-undo" size={20} color={colors.text} />,
 					[actions.redo]: () => <Ionicons name="arrow-redo" size={20} color={colors.text} />,
